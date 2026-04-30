@@ -1,0 +1,4 @@
+INSERT INTO usuario (nome) VALUES ('Fulano');
+INSERT INTO livro (titulo, usuario_id) VALUES ('Spring Boot em Ação', 1);
+SELECT * FROM usuario;
+SELECT * FROM livro;
