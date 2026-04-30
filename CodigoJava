@@ -1,0 +1,42 @@
+@Entity
+public class Autor {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nome;
+}
+@Entity
+public class Livro {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String titulo;
+    
+    @ManyToOne
+    private Autor autor;
+}
+public interface AutorRepository extends JpaRepository<Autor, Long> {}
+public interface LivroRepository extends JpaRepository<Livro, Long> {}
+public record LivroDTO(String titulo, Long autorId) {}
+@Service
+public class LivroService {
+    @Autowired private LivroRepository livroRepository;
+    @Autowired private AutorRepository autorRepository;
+
+    public Livro salvar(LivroDTO dto) {
+        Autor autor = autorRepository.findById(dto.autorId())
+                      .orElseThrow(() -> new RuntimeException("Autor não encontrado"));
+        Livro livro = new Livro();
+        livro.setTitulo(dto.titulo());
+        livro.setAutor(autor);
+        return livroRepository.save(livro);
+    }
+}
+@RestController
+@RequestMapping("/livros")
+public class LivroController {
+    @Autowired private LivroService service;
+
+    @PostMapping
+    public ResponseEntity<Livro> criar(@RequestBody LivroDTO dto) {
+        return ResponseEntity.ok(service.salvar(dto));
+    }
+}
